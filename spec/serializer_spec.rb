@@ -350,6 +350,46 @@ describe JSONAPI::Serializer do
     end
   end
 
+  describe 'JSONAPI::Serializer.serialize_errors' do
+    # The members data and errors MUST NOT coexist in the same document.
+    it 'works for active_record' do
+
+      # user.errors.full_messages
+      #
+      # errors = {
+      #  :email=>["is invalid"],
+      #  :last_name=>["can't be blank"],
+      #  :full_name=>["First name or last name can't be blank"]}
+
+
+      errors = {
+        email: ["is invalid", "can't be blank"],
+        first_name: ["can't be blank"]
+      }
+
+      jsonapi_errors = [
+        {
+          "source" => { "pointer" => "/data/attributes/email" },
+          "title" => "Is invalid",
+          "detail" => "Email is invalid"
+        },
+        {
+          "source" => { "pointer" => "/data/attributes/email" },
+          "title" => "Can't be blank",
+          "detail" => "Email can't be blank"
+        },
+        {
+          "source" => { "pointer" => "/data/attributes/first-name" },
+          "title" => "Can't be blank",
+          "detail" => "First name can't be blank"
+        }
+      ]
+      expect(JSONAPI::Serializer.serialize_errors(errors)).to eq({
+        'errors' => jsonapi_errors,
+      })
+    end
+  end
+
   describe 'JSONAPI::Serializer.serialize' do
     # The following tests rely on the fact that serialize_primary has been tested above, so object
     # primary data is not explicitly tested here. If things are broken, look above here first.
@@ -378,25 +418,6 @@ describe JSONAPI::Serializer do
       meta = {authors: ['Yehuda Katz', 'Steve Klabnik'], copyright: 'Copyright 2015 Example Corp.'}
       expect(JSONAPI::Serializer.serialize(post, meta: meta)).to eq({
         'meta' => meta,
-        'data' => serialize_primary(post, {serializer: MyApp::PostSerializer}),
-      })
-    end
-    it 'can include a top level errors node' do
-      post = create(:post)
-      errors = [
-        {
-          "source" => { "pointer" => "/data/attributes/first-name" },
-          "title" => "Invalid Attribute",
-          "detail" => "First name must contain at least three characters."
-        },
-        {
-          "source" => { "pointer" => "/data/attributes/first-name" },
-          "title" => "Invalid Attribute",
-          "detail" => "First name must contain an emoji."
-        }
-      ]
-      expect(JSONAPI::Serializer.serialize(post, errors: errors)).to eq({
-        'errors' => errors,
         'data' => serialize_primary(post, {serializer: MyApp::PostSerializer}),
       })
     end

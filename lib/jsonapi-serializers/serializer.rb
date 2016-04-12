@@ -226,6 +226,28 @@ module JSONAPI
       find_serializer_class(object).new(object, options)
     end
 
+    def self.serialize_errors(raw_errors)
+      {
+        'errors' => errors(raw_errors)
+      }
+    end
+
+    def self.errors(raw_errors)
+      raw_errors.map { |error_attribute, messages|
+        messages.map do |message|
+          single_error(error_attribute.to_s, message)
+        end
+      }.flatten
+    end
+
+    def self.single_error(attribute, message)
+      {
+        "source" => { "pointer" => "/data/attributes/#{attribute.dasherize}" },
+        "title" => message.capitalize,
+        "detail" => "#{attribute.humanize} #{message}"
+      }
+    end
+
     def self.serialize(objects, options = {})
       # Normalize option strings to symbols.
       options[:is_collection] = options.delete('is_collection') || options[:is_collection] || false
@@ -235,7 +257,6 @@ module JSONAPI
       options[:skip_collection_check] = options.delete('skip_collection_check') || options[:skip_collection_check] || false
       options[:base_url] = options.delete('base_url') || options[:base_url]
       options[:meta] = options.delete('meta') || options[:meta]
-      options[:errors] = options.delete('errors') || options[:errors]
 
       # Normalize includes.
       includes = options[:include]
@@ -286,7 +307,6 @@ module JSONAPI
         'data' => primary_data,
       }
       result['meta'] = options[:meta] if options[:meta]
-      result['errors'] = options[:errors] if options[:errors]
 
       # If 'include' relationships are given, recursively find and include each object.
       if includes
