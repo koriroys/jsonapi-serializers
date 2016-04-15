@@ -317,16 +317,16 @@ module JSONAPI
     end
 
     def self.serialize_errors(raw_errors)
-      {'errors' => errors(raw_errors)}
+      if is_activemodel_errors?(raw_errors)
+        {'errors' => activemodel_errors(raw_errors)}
+      else
+        {'errors' => raw_errors}
+      end
     end
 
-    def self.errors(raw_errors)
-      if is_activemodel_errors?(raw_errors)
-        raw_errors.to_hash(full_messages: true).inject([]) do |result, (attribute, messages)|
-           result += messages.map { |message| single_error(attribute.to_s, message) }
-        end
-      else
-        raw_errors
+    def self.activemodel_errors(raw_errors)
+      raw_errors.to_hash(full_messages: true).inject([]) do |result, (attribute, messages)|
+        result += messages.map { |message| single_error(attribute.to_s, message) }
       end
     end
 
