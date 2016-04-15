@@ -325,7 +325,7 @@ errors = [{ "title": "Invalid Attribute", "detail": "First name must contain at 
 JSONAPI::Serializer.serialize_errors(errors)
 ```
 
-If you are using ActiveModel, you can pass in an object's errors:
+If you are using Rails models (ActiveModel by default), you can pass in an object's errors:
 
 ```ruby
 JSONAPI::Serializer.serialize_errors(user.errors)

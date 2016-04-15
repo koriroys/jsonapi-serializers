@@ -321,7 +321,7 @@ module JSONAPI
     end
 
     def self.errors(raw_errors)
-      if raw_errors.class == ActiveModel::Errors
+      if is_activemodel_errors?(errors)
         raw_errors.to_hash(full_messages: true).inject([]) do |result, (attribute, messages)|
            result += messages.map { |message| single_error(attribute.to_s, message) }
         end
@@ -330,10 +330,16 @@ module JSONAPI
       end
     end
 
+    def self.is_activemodel_errors?(errors)
+      raw_errors.respond_to?(:to_hash) && raw_errors.respond_to?(:full_messages)
+    end
+
     def self.single_error(attribute, message)
       {
-        "source" => { "pointer" => "/data/attributes/#{attribute.dasherize}" },
-        "detail" => message
+        'source' => {
+          'pointer' => "/data/attributes/#{attribute.dasherize}"
+        },
+        'detail' => message
       }
     end
 

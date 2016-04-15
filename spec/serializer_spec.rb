@@ -359,14 +359,14 @@ describe JSONAPI::Serializer do
     it 'can include a top level errors node' do
       errors = [
         {
-          "source" => { "pointer" => "/data/attributes/first-name" },
-          "title" => "Invalid Attribute",
-          "detail" => "First name must contain at least three characters."
+          'source' => { 'pointer' => '/data/attributes/first-name' },
+          'title' => 'Invalid Attribute',
+          'detail' => 'First name must contain at least three characters.'
         },
         {
-          "source" => { "pointer" => "/data/attributes/first-name" },
-          "title" => "Invalid Attribute",
-          "detail" => "First name must contain an emoji."
+          'source' => { 'pointer' => '/data/attributes/first-name' },
+          'title' => 'Invalid Attribute',
+          'detail' => 'First name must contain an emoji.'
         }
       ]
       expect(JSONAPI::Serializer.serialize_errors(errors)).to eq({'errors' => errors})
@@ -380,9 +380,9 @@ describe JSONAPI::Serializer do
 
         def initialize
           @errors = ActiveModel::Errors.new(self)
-          @errors.add(:email, :invalid, message: "is invalid")
-          @errors.add(:email, :blank, message: "can't be blank")
-          @errors.add(:first_name, :blank, message: "can't be blank")
+          @errors.add(:email, :invalid, message: 'is invalid')
+          @errors.add(:email, :blank, message: 'can\'t be blank')
+          @errors.add(:first_name, :blank, message: 'can\'t be blank')
         end
 
         attr_accessor :first_name, :email
@@ -395,16 +395,16 @@ describe JSONAPI::Serializer do
       user = DummyUser.new
       jsonapi_errors = [
         {
-          "source" => { "pointer" => "/data/attributes/email" },
-          "detail" => "Email is invalid"
+          'source' => { 'pointer' => '/data/attributes/email' },
+          'detail' => 'Email is invalid'
         },
         {
-          "source" => { "pointer" => "/data/attributes/email" },
-          "detail" => "Email can't be blank"
+          'source' => { 'pointer' => '/data/attributes/email' },
+          'detail' => 'Email can\'t be blank'
         },
         {
-          "source" => { "pointer" => "/data/attributes/first-name" },
-          "detail" => "First name can't be blank"
+          'source' => { 'pointer' => '/data/attributes/first-name' },
+          'detail' => 'First name can\'t be blank'
         }
       ]
       expect(JSONAPI::Serializer.serialize_errors(user.errors)).to eq({
