@@ -316,8 +316,25 @@ module JSONAPI
       result
     end
 
-    def self.serialize_errors(errors)
-      {'errors' => errors}
+    def self.serialize_errors(raw_errors)
+      {'errors' => errors(raw_errors)}
+    end
+
+    def self.errors(raw_errors)
+      if raw_errors.class == ActiveModel::Errors
+        raw_errors.to_hash(full_messages: true).inject([]) do |result, (attribute, messages)|
+           result += messages.map { |message| single_error(attribute.to_s, message) }
+        end
+      else
+        raw_errors
+      end
+    end
+
+    def self.single_error(attribute, message)
+      {
+        "source" => { "pointer" => "/data/attributes/#{attribute.dasherize}" },
+        "detail" => message
+      }
     end
 
     def self.serialize_primary(object, options = {})
