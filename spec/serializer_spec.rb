@@ -381,8 +381,8 @@ describe JSONAPI::Serializer do
         def initialize
           @errors = ActiveModel::Errors.new(self)
           @errors.add(:email, :invalid, message: 'is invalid')
-          @errors.add(:email, :blank, message: 'can\'t be blank')
-          @errors.add(:first_name, :blank, message: 'can\'t be blank')
+          @errors.add(:email, :blank, message: "can't be blank")
+          @errors.add(:first_name, :blank, message: "can't be blank")
         end
 
         attr_accessor :first_name, :email
@@ -400,11 +400,11 @@ describe JSONAPI::Serializer do
         },
         {
           'source' => { 'pointer' => '/data/attributes/email' },
-          'detail' => 'Email can\'t be blank'
+          'detail' => "Email can't be blank"
         },
         {
           'source' => { 'pointer' => '/data/attributes/first-name' },
-          'detail' => 'First name can\'t be blank'
+          'detail' => "First name can't be blank"
         }
       ]
       expect(JSONAPI::Serializer.serialize_errors(user.errors)).to eq({
